@@ -3,6 +3,7 @@ require("./config/database").connect();
 const createError = require("http-errors");
 const express = require("express");
 const path = require("path");
+const cors = require("cors");
 const logger = require("morgan");
 const auth = require("./middleware/auth");
 const multer = require("multer");
@@ -22,6 +23,7 @@ var barangKeluarRouter = require("./routes/barangKeluar");
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -30,7 +32,6 @@ app.use(express.static(path.join(__dirname, "public")));
 // auth without middleware
 app.use("/", indexRouter);
 app.use("/auth", authRouter);
-app.use("/pengguna", usersRouter);
 
 // middleware
 app.use(auth);
@@ -62,6 +63,7 @@ const upload = multer({
 }).single("file");
 
 app.use("/upload", upload, uploadRouter);
+app.use("/pengguna", usersRouter);
 app.use("/barang", barangRouter);
 app.use("/kategori", kategoriRouter);
 app.use("/satuan", satuanRouter);
@@ -90,4 +92,4 @@ app.use(function (err, req, res, next) {
 
 app.listen(port, () => {
   console.log(`app running on http://localhost:${port}`);
-})
+});

@@ -18,8 +18,8 @@ module.exports = {
   },
   getAll: (req, res, next) => {
     const query = req.query;
-    const page = parseInt(query.page);
-    const rows = parseInt(query.rows);
+    const page = parseInt(query.page) || 1;
+    const rows = parseInt(query.rows) || 10;
     let [field, direction] = query.sortby ? query.sortby.split(".") : [];
     direction = direction === "asc" ? 1 : -1;
     const filter = {
@@ -40,7 +40,7 @@ module.exports = {
       .find(filter)
       .select("username nama email no_telp role status created_at")
       .skip((page - 1) * rows)
-      .limit(rows)
+      .limit(-rows)
       .sort([[field, direction]])
       .exec(function (error, data) {
         if (error) {
