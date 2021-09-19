@@ -5,7 +5,7 @@ module.exports = {
   getCountAll: (req, res, next) => {
     usersModel.countDocuments((error, count) => {
       if (error) {
-        next(error);
+        return next(error);
       }
 
       return res.json({
@@ -44,13 +44,13 @@ module.exports = {
       .sort([[field, direction]])
       .exec(function (error, data) {
         if (error) {
-          next(error);
+          return next(error);
         }
 
         // count all
         usersModel.countDocuments().exec(function (error, count) {
           if (error) {
-            next(error);
+            return next(error);
           }
 
           // count all with filter
@@ -59,7 +59,7 @@ module.exports = {
             .countDocuments()
             .exec(function (error, countFiltered) {
               if (error) {
-                next(error);
+                return next(error);
               }
 
               res.json({
@@ -80,7 +80,7 @@ module.exports = {
     usersModel
       .findOne({ username: username }, function (error, data) {
         if (error) {
-          next(error);
+          return next(error);
         } else {
           res.json({
             status: 200,
@@ -97,7 +97,7 @@ module.exports = {
     usersModel
       .findOne({ username: username }, function (error, data) {
         if (error) {
-          next(error);
+          return next(error);
         } else {
           res.json({
             status: 200,
@@ -113,6 +113,23 @@ module.exports = {
     const { username, foto, nama, email, password, no_telp, role, status } =
       req.body;
     var isError = false;
+
+    usersModel
+      .findOne({ username: username })
+      .countDocuments()
+      .exec((error, count) => {
+        if (error) {
+          return next(error);
+        }
+
+        if (count) {
+          return res.status(400).json({
+            status: 400,
+            message: "Username sudah ada",
+            error: true,
+          });
+        }
+      });
 
     if (username === undefined || username === "" || username.length < 5) {
       isError = true;
@@ -177,8 +194,9 @@ module.exports = {
       ],
       function (error) {
         if (error) {
-          next(error);
+          return next(error);
         }
+
         res.json({
           status: 200,
           message: "Berhasil ditambahkan",
@@ -241,7 +259,7 @@ module.exports = {
       },
       function (error) {
         if (error) {
-          next(error);
+          return next(error);
         }
         res.json({
           status: 200,
@@ -256,7 +274,7 @@ module.exports = {
 
     usersModel.findOneAndDelete({ username: username }, function (error) {
       if (error) {
-        next(error);
+        return next(error);
       }
       res.json({
         status: 200,
@@ -306,7 +324,7 @@ module.exports = {
       },
       function (error) {
         if (error) {
-          next(error);
+          return next(error);
         }
         res.json({
           status: 200,
@@ -341,7 +359,7 @@ module.exports = {
       { password: passwordHash },
       function (error) {
         if (error) {
-          next(error);
+          return next(error);
         }
         res.json({
           status: 200,
@@ -376,7 +394,7 @@ module.exports = {
       { password: passwordHash },
       function (error) {
         if (error) {
-          next(error);
+          return next(error);
         }
         res.json({
           status: 200,

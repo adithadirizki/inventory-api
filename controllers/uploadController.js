@@ -1,8 +1,8 @@
 module.exports = {
   do: (req, res, next) => {
-    res.json({
+    return res.json({
       status: 200,
-      message: "OK",
+      message: "Berhasil diupload",
       data: { filename: req.file.filename },
       error: false,
     });

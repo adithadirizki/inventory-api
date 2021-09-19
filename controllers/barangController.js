@@ -4,7 +4,7 @@ module.exports = {
   getCountAll: (req, res, next) => {
     barangModel.countDocuments((error, count) => {
       if (error) {
-        next(error);
+        return next(error);
       }
 
       return res.json({
@@ -17,8 +17,8 @@ module.exports = {
   },
   getAll: (req, res, next) => {
     const query = req.query;
-    const page = parseInt(query.page);
-    const rows = parseInt(query.rows);
+    const page = parseInt(query.page) || 1;
+    const rows = parseInt(query.rows) || 10;
     let [field, direction] = query.sortby ? query.sortby.split(".") : [];
     direction = direction === "asc" ? 1 : -1;
     const filter = {
@@ -44,13 +44,13 @@ module.exports = {
       .populate("id_satuan")
       .exec(function (error, data) {
         if (error) {
-          next(error);
+          return next(error);
         }
 
         // count all
         barangModel.countDocuments().exec(function (error, count) {
           if (error) {
-            next(error);
+            return next(error);
           }
 
           // count all with filter
@@ -59,7 +59,7 @@ module.exports = {
             .countDocuments()
             .exec(function (error, countFiltered) {
               if (error) {
-                next(error);
+                return next(error);
               }
 
               res.json({
@@ -80,7 +80,7 @@ module.exports = {
     barangModel
       .findById(id, function (error, data) {
         if (error) {
-          next(error);
+          return next(error);
         } else {
           res.json({
             status: 200,
@@ -107,18 +107,18 @@ module.exports = {
 
     if (nama_barang === undefined || nama_barang === "") {
       isError = true;
-    } else if (stok === undefined || stok === "") {
+    } else if (stok === undefined || stok === "" || typeof stok !== 'number') {
       isError = true;
     } else if (
       harga_jual === undefined ||
       harga_jual === "" ||
-      harga_jual.match(/\D/g)
+      typeof harga_jual !== 'number'
     ) {
       isError = true;
     } else if (
       harga_beli === undefined ||
       harga_beli === "" ||
-      harga_beli.match(/\D/g)
+      typeof harga_beli !== 'number'
     ) {
       isError = true;
     } else if (id_kategori === undefined || id_kategori === "") {
@@ -146,7 +146,7 @@ module.exports = {
 
     newBarang.save(function (error, data) {
       if (error) {
-        next(error);
+        return next(error);
       } else {
         res.json({
           status: 200,
@@ -168,13 +168,13 @@ module.exports = {
     } else if (
       harga_jual === undefined ||
       harga_jual === "" ||
-      harga_jual.match(/\D/g)
+      typeof harga_jual !== 'number'
     ) {
       isError = true;
     } else if (
       harga_beli === undefined ||
       harga_beli === "" ||
-      harga_beli.match(/\D/g)
+      typeof harga_beli !== 'number'
     ) {
       isError = true;
     } else if (id_kategori === undefined || id_kategori === "") {
@@ -202,7 +202,7 @@ module.exports = {
       },
       function (error) {
         if (error) {
-          next(error);
+          return next(error);
         } else {
           res.json({
             status: 200,
@@ -217,7 +217,7 @@ module.exports = {
     const { id } = req.params;
     barangModel.findByIdAndDelete(id, function (error) {
       if (error) {
-        next(error);
+        return next(error);
       } else {
         res.json({
           status: 200,

@@ -3,8 +3,8 @@ const satuanModel = require("../models/satuanModel");
 module.exports = {
   getAll: (req, res, next) => {
     const query = req.query;
-    const page = parseInt(query.page);
-    const rows = parseInt(query.rows);
+    const page = parseInt(query.page) || 1;
+    const rows = parseInt(query.rows) || 10;
     let [field, direction] = query.sortby ? query.sortby.split(".") : [];
     direction = direction === "asc" ? 1 : -1;
     const filter = { nama_satuan: new RegExp(query.q, "i") };
@@ -17,13 +17,13 @@ module.exports = {
       .sort([[field, direction]])
       .exec(function (error, data) {
         if (error) {
-          next(error);
+          return next(error);
         }
   
         // count all
         satuanModel.countDocuments().exec(function (error, count) {
           if (error) {
-            next(error);
+            return next(error);
           }
   
           // count all with filter
@@ -32,7 +32,7 @@ module.exports = {
             .countDocuments()
             .exec(function (error, countFiltered) {
               if (error) {
-                next(error);
+                return next(error);
               }
   
               res.json({
@@ -63,7 +63,7 @@ module.exports = {
       [{ nama_satuan: nama_satuan }],
       function (error) {
         if (error) {
-          next(error);
+          return next(error);
         }
         res.json({
           status: 200,
@@ -90,7 +90,7 @@ module.exports = {
       { nama_satuan: nama_satuan },
       function (error) {
         if (error) {
-          next(error);
+          return next(error);
         }
         res.json({
           status: 200,
@@ -104,7 +104,7 @@ module.exports = {
     const { id } = req.params;
     satuanModel.findByIdAndDelete(id, function (error) {
       if (error) {
-        next(error);
+        return next(error);
       }
       res.json({
         status: 200,

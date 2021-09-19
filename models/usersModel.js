@@ -4,6 +4,7 @@ const usersSchema = new mongoose.Schema(
   {
     username: {
       type: String,
+      unique: true,
       required: true,
     },
     foto: {

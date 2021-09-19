@@ -8,6 +8,7 @@ const logger = require("morgan");
 const auth = require("./middleware/auth");
 const multer = require("multer");
 const crypto = require("crypto");
+const compression = require("compression");
 
 var indexRouter = require("./routes/index");
 var authRouter = require("./routes/auth");
@@ -21,10 +22,11 @@ var barangMasukRouter = require("./routes/barangMasuk");
 var barangKeluarRouter = require("./routes/barangKeluar");
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
+app.use(compression());
 app.use(cors());
-app.use(logger("dev"));
+// app.use(logger("dev")); // log
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));

@@ -8,7 +8,7 @@ module.exports = {
       .select("harga_jual kuantitas")
       .exec((error, data) => {
         if (error) {
-          next(error);
+          return next(error);
         }
 
         var income = 0;
@@ -37,7 +37,7 @@ module.exports = {
       .select("harga_jual kuantitas created_at")
       .exec((error, data) => {
         if (error) {
-          next(error);
+          return next(error);
         }
 
         var income = new Array(moment().daysInMonth()).fill(0);
@@ -67,7 +67,7 @@ module.exports = {
       .select("harga_jual kuantitas created_at")
       .exec((error, data) => {
         if (error) {
-          next(error);
+          return next(error);
         }
 
         var income = new Array(12).fill(0);
@@ -123,7 +123,7 @@ module.exports = {
       .populate("user_input", "nama")
       .exec(function (error, data) {
         if (error) {
-          next(error);
+          return next(error);
         }
 
         res.json({
@@ -136,8 +136,8 @@ module.exports = {
   },
   getAll: (req, res, next) => {
     const query = req.query;
-    const page = parseInt(query.page);
-    const rows = parseInt(query.rows);
+    const page = parseInt(query.page) || 1;
+    const rows = parseInt(query.rows) || 10;
     let [field, direction] = query.sortby ? query.sortby.split(".") : [];
     direction = direction === "asc" ? 1 : -1;
     const filter = { no_transaksi: new RegExp(query.q, "i") };
@@ -162,13 +162,13 @@ module.exports = {
       .populate("user_input", "nama")
       .exec(function (error, data) {
         if (error) {
-          next(error);
+          return next(error);
         }
 
         // count all
         barangKeluarModel.countDocuments().exec(function (error, count) {
           if (error) {
-            next(error);
+            return next(error);
           }
 
           // count all with filter
@@ -177,7 +177,7 @@ module.exports = {
             .countDocuments()
             .exec(function (error, countFiltered) {
               if (error) {
-                next(error);
+                return next(error);
               }
 
               res.json({
@@ -202,13 +202,13 @@ module.exports = {
     } else if (
       kuantitas === undefined ||
       kuantitas === "" ||
-      kuantitas.match(/\D/g)
+      typeof kuantitas !== "number"
     ) {
       isError = true;
     } else if (
       harga_jual === undefined ||
       harga_jual === "" ||
-      harga_jual.match(/\D/g)
+      typeof harga_jual !== "number"
     ) {
       isError = true;
     } else if (username === undefined || username === "") {
@@ -232,7 +232,7 @@ module.exports = {
 
     barangKeluarModel.insertMany([newBarangKeluar], function (error, data) {
       if (error) {
-        next(error);
+        return next(error);
       } else {
         res.json({
           status: 200,
@@ -247,7 +247,7 @@ module.exports = {
     const { id } = req.params;
     barangKeluarModel.findOneAndDelete({ no_transaksi: id }, function (error) {
       if (error) {
-        next(error);
+        return next(error);
       } else {
         res.json({
           status: 200,

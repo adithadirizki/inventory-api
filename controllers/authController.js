@@ -11,7 +11,7 @@ module.exports = {
       { username: username },
       function (error, data) {
         if (error) {
-          next(error);
+          return next(error);
         }
 
         if (data) {
@@ -42,7 +42,7 @@ module.exports = {
               role: data.role,
             },
             SECRET,
-            { expiresIn: "600s" }
+            { expiresIn: "3h" }
           );
 
           return res.json({
