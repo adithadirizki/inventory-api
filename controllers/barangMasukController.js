@@ -1,5 +1,7 @@
+const mongoose = require("mongoose");
 const moment = require("moment");
 const barangMasukModel = require("../models/barangMasukModel");
+const barangModel = require("../models/barangModel");
 
 module.exports = {
   getExpenses: (req, res, next) => {
@@ -195,7 +197,7 @@ module.exports = {
         });
       });
   },
-  create: (req, res, next) => {
+  create: async (req, res, next) => {
     const { id_supplier, kode_barang, kuantitas, harga_beli, username } =
       req.body;
     var isError = false;
@@ -228,26 +230,30 @@ module.exports = {
       });
     }
 
-    const newBarangMasuk = {
-      id_supplier: id_supplier,
-      kode_barang: kode_barang,
-      kuantitas: kuantitas,
-      harga_beli: harga_beli,
-      username: username,
-    };
+    try {
+      await barangModel.findOneAndUpdate(
+        { kode_barang: kode_barang },
+        { $inc: { stok: kuantitas } }
+      );
 
-    barangMasukModel.insertMany([newBarangMasuk], function (error, data) {
-      if (error) {
-        return next(error);
-      } else {
-        res.json({
-          status: 200,
-          message: "Berhasil ditambahkan",
-          data: data,
-          error: false,
-        });
-      }
-    });
+      const newBarangMasuk = new barangMasukModel({
+        id_supplier: id_supplier,
+        kode_barang: kode_barang,
+        kuantitas: kuantitas,
+        harga_beli: harga_beli,
+        username: username,
+      });
+
+      await newBarangMasuk.save();
+
+      return res.json({
+        status: 200,
+        message: "Berhasil ditambahkan",
+        error: false,
+      });
+    } catch (error) {
+      return next(error);
+    }
   },
   delete: (req, res, next) => {
     const { id } = req.params;

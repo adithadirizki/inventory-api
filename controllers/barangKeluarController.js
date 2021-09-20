@@ -1,5 +1,6 @@
 const moment = require("moment");
 const barangKeluarModel = require("../models/barangKeluarModel");
+const barangModel = require("../models/barangModel");
 
 module.exports = {
   getIncome: (req, res, next) => {
@@ -193,7 +194,7 @@ module.exports = {
         });
       });
   },
-  create: (req, res, next) => {
+  create: async (req, res, next) => {
     const { kode_barang, kuantitas, harga_jual, username } = req.body;
     var isError = false;
 
@@ -223,25 +224,29 @@ module.exports = {
       });
     }
 
-    const newBarangKeluar = {
-      kode_barang: kode_barang,
-      kuantitas: kuantitas,
-      harga_jual: harga_jual,
-      username: username,
-    };
+    try {
+      await barangModel.findOneAndUpdate(
+        { kode_barang: kode_barang },
+        { $inc: { stok: -kuantitas } }
+      );
 
-    barangKeluarModel.insertMany([newBarangKeluar], function (error, data) {
-      if (error) {
-        return next(error);
-      } else {
-        res.json({
-          status: 200,
-          message: "Berhasil ditambahkan",
-          data: data,
-          error: false,
-        });
-      }
-    });
+      const newBarangKeluar = new barangKeluarModel({
+        kode_barang: kode_barang,
+        kuantitas: kuantitas,
+        harga_jual: harga_jual,
+        username: username,
+      });
+
+      await newBarangKeluar.save();
+
+      return res.json({
+        status: 200,
+        message: "Berhasil ditambahkan",
+        error: false,
+      });
+    } catch (error) {
+      return next(error);
+    }
   },
   delete: (req, res, next) => {
     const { id } = req.params;
